@@ -1,125 +1,130 @@
 
 # Overview
 
-This program, scheduler.py, allows you to see how different schedulers perform
-under scheduling metrics such as response time, turnaround time, and total
-wait time. Three schedulers are "implemented": FIFO, SJF, and RR.
-
-There are two steps to running the program.
-
-First, run without the -c flag: this shows you what problem to solve without
-revealing the answers. For example, if you want to compute response,
-turnaround, and wait for three jobs using the FIFO policy, run this:
+This program, lottery.py, allows you to see how a lottery scheduler
+works. As always, there are two steps to running the program. First, run
+without the -c flag: this shows you what problem to solve without
+revealing the answers. 
 
 ```sh
-prompt> python3 scheduler.py -p FIFO -j 3 -s 100
-```
-
-This specifies the FIFO policy with three jobs, and, importantly, a specific
-random seed of 100. If you want to see the solution for this exact problem,
-you have to specify this exact same random seed again. Let's run it and see
-what happens. This is what you should see:
-
-```sh
-prompt> python3 scheduler.py -p FIFO -j 3 -s 100
-ARG policy FIFO
-ARG jobs 3
-ARG maxlen 10
-ARG seed 100
-
-Here is the job list, with the run time of each job: 
-  Job 0 (length = 1)
-  Job 1 (length = 4)
-  Job 2 (length = 7)
-```
-
-Compute the turnaround time, response time, and wait time for each job.  When
-you are done, run this program again, with the same arguments, but with -c,
-which will thus provide you with the answers. You can use -s <somenumber> or
-your own job list (-l 10,15,20 for example) to generate different problems for
-yourself.
-
-As you can see from this example, three jobs are generated: job 0 of length 1,
-job 1 of length 4, and job 2 of length 7. As the program states, you can now
-use this to compute some statistics and see if you have a grip on the basic
-concepts.
-
-Once you are done, you can use the same program to "solve" the problem and see
-if you did your work correctly. To do so, use the "-c" flag. The output:
-
-```sh
-prompt> python3 scheduler.py -p FIFO -j 3 -s 100 -c
-ARG policy FIFO
-ARG jobs 3
-ARG maxlen 10
-ARG seed 100
-
-Here is the job list, with the run time of each job: 
-  Job 0 (length = 1)
-  Job 1 (length = 4)
-  Job 2 (length = 7)
-
-** Solutions **
-
-Execution trace:
-  [time   0] Run job 0 for 1.00 secs (DONE)
-  [time   1] Run job 1 for 4.00 secs (DONE)
-  [time   5] Run job 2 for 7.00 secs (DONE)
-
-Final statistics:
-  Job   0 -- Response: 0.00  Turnaround 1.00  Wait 0.00
-  Job   1 -- Response: 1.00  Turnaround 5.00  Wait 1.00
-  Job   2 -- Response: 5.00  Turnaround 12.00  Wait 5.00
-
-  Average -- Response: 2.00  Turnaround 6.00  Wait 2.00
-```
-
-As you can see from the figure, the -c flag shows you what happened. Job 0 ran
-first for 1 second, Job 1 ran second for 4, and then Job 2 ran for 7
-seconds. Not too hard; it is FIFO, after all! The execution trace shows these
-results.
-
-The final statistics are useful too: they compute the "response time" (the
-time a job spends waiting after arrival before first running), the "turnaround
-time" (the time it took to complete the job since first arrival), and the
-total "wait time" (any time spent ready but not running). The stats are shown
-per job and then as an average across all jobs. Of course, you should have
-computed these things all before running with the "-c" flag!
-
-If you want to try the same type of problem but with different inputs, try
-changing the number of jobs or the random seed or both. Different random seeds
-basically give you a way to generate an infinite number of different problems
-for yourself, and the "-c" flag lets you check your own work. Keep doing this
-until you feel like you really understand the concepts.
-
-One other useful flag is "-l" (that's a lower-case L), which lets you specify
-the exact jobs you wish to see scheduled. For example, if you want to find out
-how SJF would perform with three jobs of lengths 5, 10, and 15, you can run:
-
-```sh
-prompt> python3 scheduler.py -p SJF -l 5,10,15
-ARG policy SJF
-ARG jlist 5,10,15
-
-Here is the job list, with the run time of each job: 
-  Job 0 (length = 5.0)
-  Job 1 (length = 10.0)
-  Job 2 (length = 15.0)
+prompt> python3 lottery.py -j 2 -s 0
 ...
+Here is the job list, with the run time of each job: 
+  Job 0 ( length = 8, tickets = 75 )
+  Job 1 ( length = 4, tickets = 25 )
+
+Here is the set of random numbers you will need (at most):
+Random 511275
+Random 404934
+Random 783799
+Random 303313
+Random 476597
+Random 583382
+Random 908113
+Random 504687
+Random 281838
+Random 755804
+Random 618369
+Random 250506
 ```
 
-And then you can use -c to solve it again. Note that when you specify the
-exact jobs, there is no need to specify a random seed or the number of jobs:
-the jobs lengths are taken from your comma-separated list.
+When you run the simulator in this manner, it first assigns you some random
+jobs (here of lengths 8, and 4), each with some number of tickets (here 75 and
+25, respectively). The simulator also gives you a list of random numbers,
+which you will need to determine what the lottery scheduler will do. The
+random numbers are chosen to be between 0 and a large number; thus, you'll
+have to use the modulo operator to compute the lottery winner (i.e., winner
+should equal this random number modulo the total number of tickets in the
+system). 
 
-Of course, more interesting things happen when you use SJF (shortest-job
-first) or even RR (round robin) schedulers. Try them and see!
-
-And you can always run 
+Running with -c shows exactly what you are supposed to calculate:
 
 ```sh
-prompt> python3 scheduler.py -h
+prompt> python3 lottery.py -j 2 -s 0 -c
+...
+** Solutions **
+Random 511275 -> Winning ticket 75 (of 100) -> Run 1
+  Jobs:  (  job:0 timeleft:8 tix:75 ) (* job:1 timeleft:4 tix:25 )
+Random 404934 -> Winning ticket 34 (of 100) -> Run 0
+  Jobs:  (* job:0 timeleft:8 tix:75 ) (  job:1 timeleft:3 tix:25 )
+Random 783799 -> Winning ticket 99 (of 100) -> Run 1
+  Jobs:  (  job:0 timeleft:7 tix:75 ) (* job:1 timeleft:3 tix:25 )
+Random 303313 -> Winning ticket 13 (of 100) -> Run 0
+  Jobs:  (* job:0 timeleft:7 tix:75 ) (  job:1 timeleft:2 tix:25 )
+Random 476597 -> Winning ticket 97 (of 100) -> Run 1
+  Jobs:  (  job:0 timeleft:6 tix:75 ) (* job:1 timeleft:2 tix:25 )
+Random 583382 -> Winning ticket 82 (of 100) -> Run 1
+  Jobs:  (  job:0 timeleft:6 tix:75 ) (* job:1 timeleft:1 tix:25 )
+--> JOB 1 DONE at time 6
+Random 908113 -> Winning ticket 13 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:6 tix:75 ) (  job:1 timeleft:0 tix:--- )
+Random 504687 -> Winning ticket 12 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:5 tix:75 ) (  job:1 timeleft:0 tix:--- )
+Random 281838 -> Winning ticket 63 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:4 tix:75 ) (  job:1 timeleft:0 tix:--- )
+Random 755804 -> Winning ticket 29 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:3 tix:75 ) (  job:1 timeleft:0 tix:--- )
+Random 618369 -> Winning ticket 69 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:2 tix:75 ) (  job:1 timeleft:0 tix:--- )
+Random 250506 -> Winning ticket 6 (of 75) -> Run 0
+  Jobs:  (* job:0 timeleft:1 tix:75 ) (  job:1 timeleft:0 tix:--- )
+--> JOB 0 DONE at time 12
 ```
 
-to get a complete list of flags and options (including options such as setting
-the time quantum for the RR scheduler).
+As you can see from this trace, what you are supposed to do is use the random
+number to figure out which ticket is the winner. Then, given the winning
+ticket, figure out which job should run. Repeat this until all of the jobs are
+finished running. It's as simple as that -- you are just emulating what the
+lottery scheduler does, but by hand!
+
+Just to make this absolutely clear, let's look at the first decision made in
+the example above. At this point, we have two jobs (job 0 which has a runtime
+of 8 and 75 tickets, and job 1 which has a runtime of 4 and 25 tickets). The
+first random number we are given is 511275. As there are 100 tickets in the
+system, 511275 \% 100 is 75, and thus 75 is our winning ticket.
+
+If ticket 75 is the winner, we simply search through the job list until we
+find it. The first entry, for job 0, has 75 tickets (0 through 74), and thus
+does not win; the next entry is for job 1, and thus we have found our winner,
+so we run job 1 for the quantum length (1 in this example). All of this is
+shown in the print out as follows:
+
+```sh
+Random 511275 -> Winning ticket 75 (of 100) -> Run 1
+  Jobs:  (  job:0 timeleft:8 tix:75 ) (* job:1 timeleft:4 tix:25 )
+```
+
+As you can see, the first line summarizes what happens, and the second simply
+shows the entire job queue, with an * denoting which job was chosen.
+
+The simulator has a few other options, most of which should be
+self-explanatory. Most notably, the -l/--jlist flag can be used to specify an
+exact set of jobs and their ticket values, instead of always using
+randomly-generated job lists.
+
+```sh
+prompt> python3 lottery.py -h
+Usage: lottery.py [options]
+
+Options:
+  -h, --help            
+      show this help message and exit
+  -s SEED, --seed=SEED  
+      the random seed
+  -j JOBS, --jobs=JOBS  
+      number of jobs in the system
+  -l JLIST, --jlist=JLIST
+      instead of random jobs, provide a comma-separated list
+      of run times and ticket values (e.g., 10:100,20:100
+      would have two jobs with run-times of 10 and 20, each
+      with 100 tickets)
+  -m MAXLEN, --maxlen=MAXLEN
+      max length of job
+  -T MAXTICKET, --maxtick=MAXTICKET
+      maximum ticket value, if randomly assigned
+  -q QUANTUM, --quantum=QUANTUM
+      length of time slice
+  -c, --compute
+      compute answers for me
+```
+
